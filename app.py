@@ -73,13 +73,13 @@ if st.button("Analyze Skills"):
 #Current skills
 #Desired job role
 #Experience level
-AI analyzes:
-Required skills for the target role
-Missing skills (skill gap)
-Learning recommendations
-Displays:
-Skill match percentage
-Missing skills
+#AI analyzes:
+#Required skills for the target role
+#Missing skills (skill gap)
+#Learning recommendations
+#Displays:
+#Skill match percentage
+#Missing skills
 Personalized learning roadmap
 Simple Python (Streamlit) App
 Python
