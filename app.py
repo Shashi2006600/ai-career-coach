@@ -1,4 +1,4 @@
-import OpenAI
+import openai
 import streamlit as st
 
 # Sample skill database
