@@ -80,20 +80,20 @@ if st.button("Analyze Skills"):
 #Displays:
 #Skill match percentage
 #Missing skills
-Personalized learning roadmap
-Simple Python (Streamlit) App
-Python
-Run the App
-Install Streamlit:
-Bash
-pip install streamlit
-Run:
-Bash
-streamlit run app.py
-AI Enhancement (OpenAI Integration)
-You can replace the fixed roadmap with AI-generated advice:
-Python
-from openai import OpenAI
+#Personalized learning roadmap
+#Simple Python (Streamlit) App
+#Python
+#Run the App
+#Install Streamlit:
+#Bash
+#pip install streamlit
+#Run:
+#Bash
+#streamlit run app.py
+#AI Enhancement (OpenAI Integration)
+#You can replace the fixed roadmap with AI-generated advice:
+#Python
+#from openai import OpenAI
 
 client = OpenAI(api_key="YOUR_API_KEY")
 
