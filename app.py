@@ -96,7 +96,7 @@ if st.button("Analyze Skills"):
 #Python
 #from openai import OpenAI
 
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 prompt = f"""
 Current Skills: {user_skill_list}
