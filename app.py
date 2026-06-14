@@ -112,4 +112,4 @@ response = client.responses.create(
 
 roadmap = response.output_text
 print(roadmap)
-This turns the project into a full AI-powered career coach that gives personalized career guidance and skill-gap analysis.
+st.write("This turns the project into a full AI-powered career coach that gives personalized career guidance and skill-gap analysis.")
