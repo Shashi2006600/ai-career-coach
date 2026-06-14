@@ -99,7 +99,7 @@ if st.button("Analyze Skills"):
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 prompt = f"""
-Current Skills: {user_skill_list}
+st.write(f"Current Skills: {user_skill_list}")
 Target Role: {target_role}
 Missing Skills: {missing}
 
