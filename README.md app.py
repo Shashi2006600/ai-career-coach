@@ -67,7 +67,7 @@ if st.button("Analyze Skills"):
 
     for skill in missing:
         st.write(f"📘 Learn {skill}")
-If you want to build an AI Career Coach with Skill Gap Analysis, a good approach is:
+#If you want to build an AI Career Coach with Skill Gap Analysis, a good approach is:
 Features
 User enters:
 Current skills
