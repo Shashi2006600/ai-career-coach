@@ -1,116 +1,114 @@
+import os
 import streamlit as st
-from openai import OpenAI
+from google import genai
+from google.genai import types
 
-# Sample skill database
-job_skills = {
-    "Data Scientist": [
-        "Python", "Machine Learning", "Statistics",
-        "SQL", "Data Visualization"
-    ],
-    "AI Engineer": [
-        "Python", "Deep Learning", "TensorFlow",
-        "Machine Learning", "NLP"
-    ],
-    "Web Developer": [
-        "HTML", "CSS", "JavaScript",
-        "React", "Node.js"
-    ]
-}
+# Initialize the Gemini Client
+# It automatically picks up the GEMINI_API_KEY environment variable
+try:
+    client = genai.Client()
+except Exception as e:
+    st.error(f"Failed to initialize Gemini Client. Ensure GEMINI_API_KEY is set. Error: {e}")
+    st.stop()
 
-st.title("AI Career Coach with Skill Gap Analysis")
-
-name = st.text_input("Your Name")
-
-target_role = st.selectbox(
-    "Target Career Role",
-    list(job_skills.keys())
+# Configure the Streamlit Page
+st.set_page_config(
+    page_title="AI Career Coach & Skill Gap Analyzer",
+    page_icon="💼",
+    layout="wide"
 )
 
-user_skills = st.text_area(
-    "Enter your skills (comma separated)"
+# App Header
+st.title("💼 AI Career Coach & Skill Gap Analyzer")
+st.markdown("""
+    Upload your profile or paste your skills, define your target role, 
+    and let the AI analyze your gaps and construct a learning roadmap.
+""")
+
+st.divider()
+
+# Sidebar Configuration
+st.sidebar.header("🎯 Target Goals")
+target_role = st.sidebar.text_input(
+    "Target Job Role", 
+    placeholder="e.g., Data Scientist, DevOps Engineer, Full Stack Developer"
 )
 
-if st.button("Analyze Skills"):
-
-    user_skill_list = [
-        skill.strip()
-        for skill in user_skills.split(",")
-        if skill.strip()
-    ]
-
-    required_skills = job_skills[target_role]
-
-    matched = [
-        skill for skill in required_skills
-        if skill in user_skill_list
-    ]
-
-    missing = [
-        skill for skill in required_skills
-        if skill not in user_skill_list
-    ]
-
-    match_percentage = (
-        len(matched) / len(required_skills)
-    ) * 100
-
-    st.subheader("Analysis Result")
-
-    st.write(f"**Skill Match:** {match_percentage:.0f}%")
-
-    st.write("### Skills You Have")
-    st.write(matched)
-
-    st.write("### Skill Gaps")
-    st.write(missing)
-
-    st.write("### Learning Roadmap")
-
-    for skill in missing:
-        st.write(f"📘 Learn {skill}")
-#If you want to build an AI Career Coach with Skill Gap Analysis, a good approach is:
-#Features
-#User enters:
-#Current skills
-#Desired job role
-#Experience level
-#AI analyzes:
-#Required skills for the target role
-#Missing skills (skill gap)
-#Learning recommendations
-#Displays:
-#Skill match percentage
-#Missing skills
-#Personalized learning roadmap
-#Simple Python (Streamlit) App
-#Python
-#Run the App
-#Install Streamlit:
-#Bash
-#pip install streamlit
-#Run:
-#Bash
-#streamlit run app.py
-#AI Enhancement (OpenAI Integration)
-#You can replace the fixed roadmap with AI-generated advice:
-#Python
-#from openai import OpenAI
-
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-prompt = f"""
-st.write(f"Current Skills: {user_skill_list}")
-Target Role: {target_role}
-Missing Skills: {missing}
-
-Create a 3-month learning roadmap.
-"""
-
-response = client.responses.create(
-    model="gpt-5",
-    input=prompt
+target_industry = st.sidebar.text_input(
+    "Target Industry/Domain", 
+    placeholder="e.g., FinTech, Healthcare, E-commerce"
 )
 
-roadmap = response.output_text
-print(roadmap)
-st.write("This turns the project into a full AI-powered career coach that gives personalized career guidance and skill-gap analysis.")
+# Layout: Two columns for input and output
+col1, col2 = st.columns([1, 1.5])
+
+with col1:
+    st.subheader("📝 Your Profile Input")
+    
+    # Input Type Toggle
+    input_method = st.radio(
+        "Choose how to provide your current profile:",
+        ["Paste Current Skills & Experience", "Upload Resume text"]
+    )
+    
+    user_profile = ""
+    if input_method == "Paste Current Skills & Experience":
+        user_profile = st.text_area(
+            "Paste your current skills, tools known, and brief experience:",
+            height=300,
+            placeholder="Skills: Python, SQL, Basic Machine Learning...\nExperience: 1 year as a Data Analyst..."
+        )
+    else:
+        # For simplicity without needing heavy PDF parsing libraries like PyPDF2, 
+        # we accept standard text/md files, or you can paste the text.
+        uploaded_file = st.file_uploader("Upload your resume as a text file (.txt)", type=["txt"])
+        if uploaded_file is not None:
+            user_profile = uploaded_file.read().decode("utf-8")
+            st.success("Resume text loaded successfully!")
+
+    analyze_button = st.button("🚀 Analyze Skill Gap & Get Advice", type="primary")
+
+with col2:
+    st.subheader("📊 AI Coach Evaluation")
+    
+    if analyze_button:
+        if not target_role:
+            st.warning("Please specify a Target Job Role in the sidebar.")
+        elif not user_profile.strip():
+            st.warning("Please provide your current profile or skills text.")
+        else:
+            with st.spinner("Analyzing your profile against industry standards..."):
+                
+                # Construct a strict prompt enforcing structured breakdown
+                prompt = f"""
+                You are an expert AI Career Coach and Technical Recruiter. 
+                Analyze the user's current profile against their desired target role.
+                
+                TARGET ROLE: {target_role}
+                TARGET INDUSTRY: {target_industry if target_industry else 'General Tech/Relevant Industry'}
+                
+                USER PROFILE:
+                \"\"\"
+                {user_profile}
+                \"\"\"
+                
+                Provide a structured response with the following markdown headers:
+                1. ## 🎯 Core Match Assessment: Short summary of how close they are to the role.
+                2. ## ❌ Critical Skill Gaps: Bullet points of missing technical skills, tools, or domain knowledge.
+                3. ## 📈 Personalized 3-Step Learning Roadmap: A clear, actionable path to bridge the gap.
+                4. ## 💼 Interview & Resume Tips: Tailored advice for this specific transition.
+                """
+                
+                try:
+                    # Using the standard gemini-2.5-flash model for fast, structured text analysis
+                    response = client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt,
+                    )
+                    
+                    st.markdown(response.text)
+                    
+                except Exception as e:
+                    st.error(f"An error occurred during generation: {e}")
+    else:
+        st.info("Fill out your target role and profile details, then click 'Analyze Skill Gap' to view your coaching insights.")
