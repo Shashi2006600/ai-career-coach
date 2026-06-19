@@ -98,6 +98,7 @@ from openai import OpenAI
 client = OpenAI(api_key="YOUR_API_KEY")
 
 prompt = f"""
+if 'user_skill_list' in locals():
 st.subheader(f"Current Skills: {user_skill_list}")
 Target Role: {target_role}
 Missing Skills: {missing}
