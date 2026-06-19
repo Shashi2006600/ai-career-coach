@@ -1,93 +1,115 @@
-#include <stdio.h>
-#include <string.h>
+import streamlit as st
 
-#define MAX_SKILLS 20
-#define MAX_LEN 50
-
-int main() {
-    char targetRole[50];
-    char userSkills[MAX_SKILLS][MAX_LEN];
-    int userSkillCount;
-
-    char aiEngineer[][MAX_LEN] = {
-        "Python",
-        "Deep Learning",
-        "TensorFlow",
-        "Machine Learning",
-        "NLP"
-    };
-
-    int requiredCount = 5;
-
-    printf("=== AI Career Coach ===\n\n");
-
-    printf("Enter Target Role (AI Engineer): ");
-    fgets(targetRole, sizeof(targetRole), stdin);
-
-    printf("How many skills do you have? ");
-    scanf("%d", &userSkillCount);
-    getchar();
-
-    printf("Enter your skills:\n");
-
-    for(int i = 0; i < userSkillCount; i++) {
-        fgets(userSkills[i], MAX_LEN, stdin);
-        userSkills[i][strcspn(userSkills[i], "\n")] = 0;
-    }
-
-    int matched = 0;
-
-    printf("\nSkills You Have:\n");
-
-    for(int i = 0; i < requiredCount; i++) {
-        int found = 0;
-
-        for(int j = 0; j < userSkillCount; j++) {
-            if(strcmp(aiEngineer[i], userSkills[j]) == 0) {
-                found = 1;
-                matched++;
-                printf("- %s\n", aiEngineer[i]);
-            }
-        }
-    }
-
-    printf("\nSkill Gaps:\n");
-
-    for(int i = 0; i < requiredCount; i++) {
-        int found = 0;
-
-        for(int j = 0; j < userSkillCount; j++) {
-            if(strcmp(aiEngineer[i], userSkills[j]) == 0) {
-                found = 1;
-                break;
-            }
-        }
-
-        if(!found) {
-            printf("- %s\n", aiEngineer[i]);
-        }
-    }
-
-    float percentage = ((float)matched / requiredCount) * 100;
-
-    printf("\nSkill Match: %.0f%%\n", percentage);
-
-    printf("\nLearning Roadmap:\n");
-
-    for(int i = 0; i < requiredCount; i++) {
-        int found = 0;
-
-        for(int j = 0; j < userSkillCount; j++) {
-            if(strcmp(aiEngineer[i], userSkills[j]) == 0) {
-                found = 1;
-                break;
-            }
-        }
-
-        if(!found) {
-            printf("Learn %s\n", aiEngineer[i]);
-        }
-    }
-
-    return 0;
+# Sample skill database
+job_skills = {
+    "Data Scientist": [
+        "Python", "Machine Learning", "Statistics",
+        "SQL", "Data Visualization"
+    ],
+    "AI Engineer": [
+        "Python", "Deep Learning", "TensorFlow",
+        "Machine Learning", "NLP"
+    ],
+    "Web Developer": [
+        "HTML", "CSS", "JavaScript",
+        "React", "Node.js"
+    ]
 }
+
+st.title("AI Career Coach with Skill Gap Analysis")
+
+name = st.text_input("Your Name")
+
+target_role = st.selectbox(
+    "Target Career Role",
+    list(job_skills.keys())
+)
+
+user_skills = st.text_area(
+    "Enter your skills (comma separated)"
+)
+
+if st.button("Analyze Skills"):
+
+    user_skill_list = [
+        skill.strip()
+        for skill in user_skills.split(",")
+        if skill.strip()
+    ]
+
+    required_skills = job_skills[target_role]
+
+    matched = [
+        skill for skill in required_skills
+        if skill in user_skill_list
+    ]
+
+    missing = [
+        skill for skill in required_skills
+        if skill not in user_skill_list
+    ]
+
+    match_percentage = (
+        len(matched) / len(required_skills)
+    ) * 100
+
+    st.subheader("Analysis Result")
+
+    st.write(f"**Skill Match:** {match_percentage:.0f}%")
+
+    st.write("### Skills You Have")
+    st.write(matched)
+
+    st.write("### Skill Gaps")
+    st.write(missing)
+
+    st.write("### Learning Roadmap")
+
+    for skill in missing:
+        st.write(f"📘 Learn {skill}")
+#If you want to build an AI Career Coach with Skill Gap Analysis, a good approach is:
+#Features
+#User enters:
+#Current skills
+#Desired job role
+#Experience level
+#AI analyzes:
+#Required skills for the target role
+#Missing skills (skill gap)
+#Learning recommendations
+#Displays:
+#Skill match percentage
+#Missing skills
+#Personalized learning roadmap
+#Simple Python (Streamlit) App
+#Python
+#Run the App
+#Install Streamlit:
+#Bash
+#pip install streamlit
+#Run:
+#Bash
+#streamlit run app.py
+#AI Enhancement (OpenAI Integration)
+#You can replace the fixed roadmap with AI-generated advice:
+#Python
+from openai import OpenAI
+
+client = OpenAI(api_key="YOUR_API_KEY")
+
+prompt = f"""
+Current Skills: {user_skill_list}
+Target Role: {target_role}
+Missing Skills: {missing}
+
+Create a 3-month learning roadmap.
+"""
+
+response = client.responses.create(
+    model="gpt-5",
+    input=prompt
+)
+
+roadmap = response.output_text
+print(roadmap)
+This turns the project into a full AI-powered career coach that gives personalized career guidance and skill-gap analysis.
