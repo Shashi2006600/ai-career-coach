@@ -98,7 +98,7 @@ from openai import OpenAI
 client = OpenAI(api_key="YOUR_API_KEY")
 
 prompt = f"""
-Current Skills: {user_skill_list}
+st.write(F"Current Skills: {user_skill_list}")
 Target Role: {target_role}
 Missing Skills: {missing}
 
